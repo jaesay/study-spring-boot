@@ -1,5 +1,6 @@
 package com.sb;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -12,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.querydsl.core.BooleanBuilder;
 import com.sb.domain.Board;
+import com.sb.domain.QBoard;
 import com.sb.persistence.BoardRepository;
 
 @RunWith(SpringRunner.class)
@@ -24,7 +27,38 @@ public class BoardRepositoryTests {
 	
 	@Test
 	public void testJPA() {
-		Pageable paging = PageRequest.of(0, 10, Sort.Direction.ASC, "bno");
+		String type = "t";
+		String keyword = "17";
+		
+		BooleanBuilder builder = new BooleanBuilder();
+		
+		QBoard board = QBoard.board;
+		
+		if(type.equals("t")) {
+			builder.and(board.title.like("%" + keyword + "%"));
+		}
+		
+		builder.and(board.bno.gt(0L));
+		
+		Pageable pageable = PageRequest.of(0, 10);
+		
+		Page<Board> result = repo.findAll(builder, pageable);
+		
+		System.out.println("PAGE SIZE: " + result.getSize());
+		System.out.println("TOTAL PAGES: " + result.getTotalPages());
+		System.out.println("TOTAL COUNT: " + result.getTotalElements());
+		System.out.println("NEXT: " + result.nextPageable());
+		
+		List<Board> list = result.getContent();
+		
+		list.forEach(b -> System.out.println(b));
+		
+		/*repo.findByTitle2("17")
+			.forEach(arr -> System.out.println(Arrays.toString(arr)));*/
+		
+		/*repo.findByTitle("17")
+			.forEach(board -> System.out.println(board));*/
+		/*Pageable paging = PageRequest.of(0, 10, Sort.Direction.ASC, "bno");
 		
 		Page<Board> result = repo.findByBnoGreaterThan(0L, paging);
 		
@@ -35,7 +69,7 @@ public class BoardRepositoryTests {
 		
 		List<Board> list = result.getContent();
 		
-		list.forEach(board -> System.out.println(board));
+		list.forEach(board -> System.out.println(board));*/
 		
 		//Collection<Board> results = repo.findByWriterContaining("05");
 		
